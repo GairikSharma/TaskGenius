@@ -38,7 +38,7 @@ function App() {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
-    },5000);
+    }, 5000);
   }, []);
 
   useEffect(() => {
@@ -53,7 +53,7 @@ function App() {
   return (
     <ChakraProvider>
       <BrowserRouter>
-      
+
         {isLoading ? (
           <Loader />
         ) : (
@@ -78,7 +78,7 @@ function App() {
                 setEmail,
                 designation,
                 setDesignation,
-                sidebar, 
+                sidebar,
                 setShowSidebar
               }}
             >

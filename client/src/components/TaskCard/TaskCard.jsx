@@ -3,7 +3,6 @@ import "./taskcard.css";
 import { MdOutlineFileDownloadDone } from "react-icons/md";
 import { BsTrash } from "react-icons/bs";
 import { SlCalender } from "react-icons/sl";
-import { FiMoreVertical } from "react-icons/fi";
 
 function LazyTaskCard() {
   return (

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { ReminderContext } from "../../context";
 import auth from "../../firebase";
+import { SpinnerIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -33,12 +34,11 @@ function BasicUsage() {
     setDescription,
     date,
     setDate,
-    email,
-    setEmail,
   } = useContext(ReminderContext);
   const [showErrAlert, setShowErrAlert] = useState(false);
-  const [popupTime, setPopupTime] = useState(true);
   const [msg, setMsg] = useState("Enter all the details properly");
+  const { alltask, setAlltask } = useContext(ReminderContext)
+  const [adding, setAdding] = useState(false)
 
   const showAlert = () => {
     setShowErrAlert(true);
@@ -59,13 +59,17 @@ function BasicUsage() {
       showAlert();
     } else {
       e.preventDefault();
-      const newRemainder = await addDoc(collection(db, "reminders"), {
-        title: title,
-        description: description,
-        date: date,
-        email: auth.currentUser.email,
-      });
-      window.location.reload(true);
+      setAdding(true)
+      const task = {
+        title,
+        description,
+        date,
+        email: auth.currentUser.email
+      }
+      await addDoc(collection(db, "reminders"), task);
+      setAlltask([task, ...alltask])
+      setAdding(false)
+      onClose() //Close the modal
     }
   };
   return (
@@ -121,11 +125,11 @@ function BasicUsage() {
               colorScheme="twitter"
               onClick={addRemainder}
               onClose={onClose}
-              disabled={
-                title === "" || description === "" || date === "" ? true : false
-              }
+              disabled={title === "" || description === "" || date === ""}
             >
-              Add
+              {adding ?
+                <SpinnerIcon className="spinner" />
+                : "Add"}
             </Button>
           </ModalFooter>
         </ModalContent>

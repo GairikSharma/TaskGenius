@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import "../styles/home.css";
 import "../components/TaskCard/taskcard.css";
-import { Card, CardBody, Text, Box, Button } from "@chakra-ui/react";
 import BasicUsage from "../components/modal/modal";
 
 import { db } from "../firebase";
@@ -11,13 +10,11 @@ import auth from "../firebase";
 import { MdOutlineFileDownloadDone } from "react-icons/md";
 import { BsTrash } from "react-icons/bs";
 import { SlCalender } from "react-icons/sl";
-import { FiMoreVertical } from "react-icons/fi";
 import AddTask from "../components/AddTaskComponent/AddTask";
 
 function Home() {
   const [disable, setDisable] = useState(false);
-
-  const { alltask, deletetask, setDeleteTask } = useContext(ReminderContext);
+  const { alltask, setAlltask, deletetask, setDeleteTask } = useContext(ReminderContext);
   const completedArr = [
     {
       title: "",
@@ -32,25 +29,39 @@ function Home() {
     });
   }
 
-  const markAsDone = async (status, id) => {
+  const markAsDone = async (_status, id) => {
     const markDoneTask = doc(db, "reminders", id);
     const updateState = { status: 1 };
+
+    //UI Update
+    const tasksAfterUpdate = alltask.filter((item) => {
+      if (item.id === markDoneTask.id) {
+        item.status = 1
+      }
+      return item
+    })
+    setAlltask(tasksAfterUpdate)
+
+    //DB Update
     await updateDoc(markDoneTask, updateState);
     setDeleteTask(true);
     if (updateDoc) {
       setDisable(true);
     }
-    window.location.reload(true);
   };
 
   const deleteTask = async (id) => {
     try {
       const userTask = doc(db, "reminders", id);
-      await deleteDoc(userTask);
 
-      console.log("Deleted task");
+      //UI update
+      const tasksAfterDelete = alltask.filter(item => item.id !== userTask.id)
+      setAlltask(tasksAfterDelete)
+
+      //DB Update
+      await deleteDoc(userTask);
       setDeleteTask(deletetask + 1);
-      window.location.reload(true);
+
     } catch (error) {
       console.log(error);
     }
@@ -66,14 +77,14 @@ function Home() {
   }
 
   //format date
-  function formatDate(dateString) {
-    const options = { day: "numeric", month: "long" };
-    const formattedDate = new Date(dateString).toLocaleDateString(
-      undefined,
-      options
-    );
-    return formattedDate;
-  }
+  // function formatDate(dateString) {
+  //   const options = { day: "numeric", month: "long" };
+  //   const formattedDate = new Date(dateString).toLocleDateString(
+  //     undefined,
+  //     options
+  //   );
+  //   return formattedDate;
+  // }
 
   //format time
   function formatTime(dateString) {
@@ -87,17 +98,16 @@ function Home() {
   return (
     <>
       <div className="tasks">
-        {alltask.map((t) => {
+        {alltask.map((t, index) => {
           if (t.email === auth.currentUser.email) {
             return (
-              <div className="card-body">
+              <div className="card-body" key={index}>
                 <div className="Title-more-btn">
                   <div
                     className={t.status ? "task-title-diasable" : "task-title"}
                   >
                     {t.title}
                   </div>
-                  {/* <FiMoreVertical className="more-btn" /> */}
                 </div>
                 <div
                   className={
@@ -112,7 +122,7 @@ function Home() {
                   </div>
                 ) : (
                   <div className="due-date">
-                    <SlCalender className="due" />Due {formatDate(t.date)}<span> </span>{formatTime(t.date)}
+                    <SlCalender className="due" />Due {new Date(t.date).toLocaleString()}
                   </div>
                 )}
                 <div className="done-delete-buttons">

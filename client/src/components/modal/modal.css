@@ -1,5 +1,19 @@
 .alert {
-    position: absolute;
-    top: 10;
-    right: 10;
+  position: absolute;
+  top: 10;
+  right: 10;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
